@@ -1,0 +1,77 @@
+{
+  "name": "heimdall",
+  "version": "1.0.6",
+  "description": "OTT Platform",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "set CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder --win --x64",
+    "build:dir": "set CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder --win --x64 --dir",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "keywords": [
+    "heimdall",
+    "media",
+    "streaming"
+  ],
+  "author": "JalJira",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "tree-kill": "^1.2.2"
+  },
+  "build": {
+    "appId": "com.jaljira.heimdall",
+    "productName": "Heimdall",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "frontend/**/*",
+      "backend/**/*",
+      "!backend/__pycache__",
+      "!backend/**/__pycache__",
+      "!backend/venv",
+      "!backend/**/*.pyc",
+      ".env"
+    ],
+    "extraResources": [
+      {
+        "from": "python-build/dist/heimdall-backend",
+        "to": "heimdall-backend",
+        "filter": ["**/*"]
+      },
+      {
+        "from": ".env",
+        "to": "heimdall-backend/.env"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "frontend/assets/HEiMDALL_logo.ico",
+      "signAndEditExecutable": false,
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Heimdall",
+      "installerIcon": "frontend/assets/HEiMDALL_logo.ico",
+      "uninstallerIcon": "frontend/assets/HEiMDALL_logo.ico",
+      "installerHeader": "frontend/assets/HEiMDALL_logo.ico",
+      "license": "LICENSE.txt"
+    }
+  }
+}

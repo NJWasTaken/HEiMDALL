@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heimdall | OTT Platform</title>
+    <link rel="icon" type="image/x-icon" href="assets/HEiMDALL_logo.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-black': '#0b0c0f',
+                        'brand-gray': '#1a1d23',
+                        'brand-light-gray': '#2c313a',
+                        'brand-red': '#e50914',
+                    },
+                    spacing: {
+                        'poster-w': '200px',
+                        'poster-h': '300px',
+                    }
+                },
+            },
+        }
+    </script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="bg-brand-black text-white font-inter">
+
+    <!-- Header / Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-brand-black bg-opacity-80 backdrop-blur-md shadow-lg">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
+            <!-- Logo and Main Nav -->
+            <div class="flex items-center space-x-8">
+                <!-- Logo Placeholder -->
+                <a href="#" class="text-3xl font-bold text-brand-red tracking-wider">
+                    HEiMDALL
+                </a>
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/index.html" class="text-white font-semibold hover:text-brand-red transition duration-200">Home</a>
+                    <a href="/search.html" class="text-gray-300 hover:text-white transition duration-200">Discover</a>
+                    <a href="/watchlist.html" class="text-gray-300 hover:text-white transition duration-200">My List</a>
+                </div>
+            </div>
+
+            <!-- Right Side: Search, Profile, etc. -->
+            <div class="flex items-center space-x-4 sm:space-x-6">
+                <!-- Search Icon -->
+                <button id="search-open-button" class="text-gray-300 hover:text-white transition duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+
+                <a href="profiles.html" class="relative">
+                    <button class="flex items-center space-x-2 text-gray-300 hover:text-white transition duration-200">
+                            <img id="nav-profile-img" class="h-8 w-8 rounded-md object-cover" src="https://placehold.co/40x40/e50914/white?text=V" alt="User Profile">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <div id="search-overlay" class="hidden fixed inset-0 z-50 bg-brand-black/90 backdrop-blur-sm p-4 pt-20 sm:p-8 sm:pt-24">
+        <button id="search-close-button" class="absolute top-6 right-6 text-gray-400 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+
+        <div class="container mx-auto max-w-4xl">
+            <input type="text" id="search-input" placeholder="Search for movies and TV shows..."
+                   class="w-full p-4 bg-brand-gray border-2 border-brand-light-gray rounded-lg text-white text-xl placeholder-gray-500 focus:outline-none focus:border-brand-red">
+            <div class="text-center my-4">
+                <a href="/search.html" 
+                   class="text-lg text-brand-red hover:text-white transition-colors">
+                    Advanced Discover Page &rarr;
+                </a>
+            </div>
+            <h2 id="search-results-heading" class="text-2xl font-bold mt-8 mb-4 hidden">Results</h2>
+            <div id="search-results-list"
+                 class="flex flex-col space-y-2 max-h-[60vh] overflow-y-auto search-results-scrollbar pr-2">
+                 </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="pt-20">
+        
+        <section class="relative h-[85vh] min-h-[500px] max-h-[800px] w-full flex items-end text-white">
+            <div class="absolute inset-0">
+                <img src="" alt="Featured Show" 
+                     id="hero-bg-image"
+                     class="w-full h-full object-cover">
+                <div class="absolute inset-0 hero-gradient"></div>
+                <div class="absolute inset-0 hero-gradient-left"></div>
+            </div>
+            
+            <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24 lg:pb-32 w-full md:w-2/3 lg:w-1B/2">
+                <h1 id="hero-title" class="text-4xl sm:text-5xl lg:text-7xl font-black uppercase tracking-wide drop-shadow-lg">
+                    Loading...
+                </h1>
+                <p id="hero-description" class="mt-4 text-lg sm:text-xl text-gray-200 max-w-xl drop-shadow-md">
+                    
+                </p>
+                <div class="mt-8 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a id="hero-play-link" href="#" class="flex items-center justify-center px-8 py-3 bg-brand-red text-white text-lg font-bold rounded-lg shadow-lg hover:bg-f40612 transition duration-300 transform hover:scale-105">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                        Play
+                    </a>
+                    <a id="hero-info-link" href="#" class="flex items-center justify-center px-8 py-3 bg-brand-light-gray bg-opacity-80 text-white text-lg font-bold rounded-lg shadow-lg hover:bg-opacity-100 transition duration-300 transform hover:scale-105">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        More Info
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="container mx-auto px-4 sm:px-6 lg:px-8 -mt-16 md:-mt-24 relative z-20 space-y-12">
+            
+            <div>
+                <h2 class="text-2xl font-bold mb-4">Trending Movies</h2>
+                <div id="carousel-trending-movies" class="flex overflow-x-auto carousel-scrollbar space-x-4 py-4">
+                    </div>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-bold mb-4">Trending TV Shows</h2>
+                <div id="carousel-trending-tv" class="flex overflow-x-auto carousel-scrollbar space-x-4 py-4">
+                    </div>
+            </div>
+            
+            <div>
+                <h2 class="text-2xl font-bold mb-4">Top Rated Movies</h2>
+                <div id="carousel-top-rated-movies" class="flex overflow-x-auto carousel-scrollbar space-x-4 py-4">
+                    </div>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-bold mb-4">Top Rated TV Shows</h2>
+                <div id="carousel-top-rated-tv" class="flex overflow-x-auto carousel-scrollbar space-x-4 py-4">
+                    </div>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-bold mb-4">Popular Movies</h2>
+                <div id="carousel-popular-movies" class="flex overflow-x-auto carousel-scrollbar space-x-4 py-4">
+                    </div>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-bold mb-4">Popular TV Shows</h2>
+                <div id="carousel-popular-tv" class="flex overflow-x-auto carousel-scrollbar space-x-4 py-4">
+                    </div>
+            </div>
+
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="mt-24 bg-brand-gray text-gray-400 py-12 relative overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="assets/footer_1.png" alt="Footer Background" class="w-full h-full object-cover opacity-60">
+        </div>
+        <div class="relative z-10 text-center text-sm text-white">
+            &copy; 2025 JalJira. All Rights Reserved.
+        </div>
+    </footer>
+
+
+    <!-- Link to your new JS file -->
+    <script src="js/app.js" defer></script>
+</body>
+</html>

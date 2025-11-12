@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heimdall | Search</title>
+    <link rel="icon" type="image/x-icon" href="assets/HEiMDALL_logo.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-black': '#0b0c0f',
+                        'brand-gray': '#1a1d23',
+                        'brand-light-gray': '#2c313a',
+                        'brand-red': '#e50914',
+                    },
+                    spacing: {
+                        'poster-w': '200px',
+                        'poster-h': '300px',
+                    }
+                },
+            },
+        }
+    </script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="bg-brand-black text-white font-inter">
+
+    <header class="fixed top-0 left-0 right-0 z-50 bg-brand-black bg-opacity-80 backdrop-blur-md shadow-lg">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
+            <div class="flex items-center space-x-8">
+                <a href="/index.html" class="text-3xl font-bold text-brand-red tracking-wider">
+                    HEiMDALL
+                </a>
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/index.html" class="text-gray-300 hover:text-white transition duration-200">Home</a>
+                    <a href="/search.html" class="text-white font-semibold hover:text-brand-red transition duration-200">Discover</a>
+                    <a href="/watchlist.html" class="text-gray-300 hover:text-white transition duration-200">My List</a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4 sm:space-x-6">
+                <button id="search-open-button" class="text-gray-300 hover:text-white transition duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+                <a href="profiles.html" class="relative">
+                    <button class="flex items-center space-x-2 text-gray-300 hover:text-white transition duration-200">
+                            <img id="nav-profile-img" class="h-8 w-8 rounded-md object-cover" src="https://placehold.co/40x40/e50914/white?text=V" alt="User Profile">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <div id="search-overlay" class="hidden fixed inset-0 z-50 bg-brand-black/90 backdrop-blur-sm p-4 pt-20 sm:p-8 sm:pt-24">
+        <button id="search-close-button" class="absolute top-6 right-6 text-gray-400 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <div class="container mx-auto max-w-4xl">
+            <input type="text" id="search-input" placeholder="Search for movies and TV shows..."
+                   class="w-full p-4 bg-brand-gray border-2 border-brand-light-gray rounded-lg text-white text-xl placeholder-gray-500 focus:outline-none focus:border-brand-red">
+            <div id="search-results-list" class="flex flex-col space-y-2 max-h-[60vh] overflow-y-auto search-results-scrollbar pr-2 mt-4">
+                 </div>
+        </div>
+    </div> 
+
+    <main class="pt-24">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl font-bold mb-8">Discover Media</h1>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div>
+                    <label for="filter-type" class="block text-sm font-medium text-gray-300" style="padding-bottom: 0.2rem;">Type</label>
+                    <select id="filter-type" name="type" class="filter-select">
+                        <option value="movie" selected>Movies</option>
+                        <option value="tv">TV Shows</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="filter-genre" class="block text-sm font-medium text-gray-300" style="padding-bottom: 0.2rem;">Genre</label>
+                    <select id="filter-genre" name="genre" class="filter-select">
+                        <option value="">All Genres</option>
+                        </select>
+                </div>
+
+                <div>
+                    <label for="filter-year" class="block text-sm font-medium text-gray-300" style="padding-bottom: 0.2rem;">Year</label>
+                    <select id="filter-year" name="year" class="filter-select">
+                        <option value="">All Years</option>
+                        </select>
+                </div>
+
+                <div class="self-end">
+                    <button id="filter-button" class="w-full flex items-center justify-center px-6 py-3 bg-brand-red text-white text-lg font-bold rounded-lg shadow-lg hover:bg-f40612 transition duration-300">
+                        Discover
+                    </button>
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-bold mb-4">Results</h2>
+            <div id="discover-results-grid"
+                 class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                </div>
+        </div>
+    </main>
+    
+    <footer class="mt-24 bg-brand-gray text-gray-400 py-12 relative overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="assets/footer_1.png" alt="Footer Background" class="w-full h-full object-cover opacity-60">
+        </div>
+        <div class="relative z-10 text-center text-sm text-white">
+            &copy; 2025 JalJira. All Rights Reserved.
+        </div>
+    </footer>
+
+    <script src="js/app.js" defer></script>
+    <script src="js/search.js" defer></script>
+</body>
+</html>

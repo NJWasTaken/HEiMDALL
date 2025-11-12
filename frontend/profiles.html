@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heimdall | Who's Watching?</title>
+    <link rel="icon" type="image/x-icon" href="assets/HEiMDALL_logo.ico">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-black': '#0b0c0f',
+                        'brand-gray': '#1a1d23',
+                        'brand-light-gray': '#2c313a',
+                        'brand-red': '#e50914',
+                    },
+                },
+            },
+        }
+    </script>
+    <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="bg-brand-black text-white font-inter flex items-center justify-center min-h-screen">
+
+    <!-- Account Info Section -->
+    <div class="absolute top-4 right-4 flex items-center space-x-4">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-full bg-brand-red flex items-center justify-center">
+                <span class="text-white text-sm font-bold account-initial">?</span>
+            </div>
+            <span class="text-white account-name">Loading...</span>
+        </div>
+        <button onclick="window.location.href='/api/logout'" class="px-4 py-2 bg-brand-gray hover:bg-brand-light-gray text-white rounded-md transition-colors duration-200">
+            Sign Out
+        </button>
+    </div>
+
+    <div class="text-center">
+        <h1 class="text-4xl sm:text-5xl font-semibold text-white mb-12">Who's Watching?</h1>
+
+        <!-- Profile Grid -->
+        <div class="profile-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 md:gap-8">
+            <!-- Profiles will be dynamically inserted here by JavaScript -->
+        </div>
+
+        <!-- Manage Profiles Button -->
+        <div class="mt-16">
+            <button class="manage-profiles-btn inline-block px-8 py-3 border-2 border-gray-600 text-gray-400 font-semibold rounded-lg hover:border-white hover:text-white transition-all duration-200">
+                Manage Profiles
+            </button>
+        </div>
+    </div>
+
+    <!-- Link to profiles.js -->
+    <script src="js/profiles.js"></script>
+
+</body>
+</html>

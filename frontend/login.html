@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>heimdall | Login</title>
+    <link rel="icon" type="image/x-icon" href="assets/HEiMDALL_logo.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-black': '#0b0c0f',
+                        'brand-gray': '#1a1d23',
+                        'brand-light-gray': '#2c313a',
+                        'brand-red': '#e50914',
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="bg-brand-black text-white font-inter min-h-screen relative">
+    <!-- Backdrop Image -->
+    <div class="fixed inset-0 z-0">
+        <img src="assets/heimdall_backdrop.jpg" alt="Heimdall Backdrop" class="w-full h-full object-cover opacity-60">
+        <div class="absolute inset-0 bg-gradient-to-t from-brand-black/80 via-brand-black/40 to-brand-black/20"></div>
+    </div>
+    
+    <!-- Content -->
+    <div class="relative z-10 flex items-center justify-center min-h-screen py-12">
+        <div class="w-full max-w-md p-8 bg-brand-black/80 backdrop-blur-md rounded-lg shadow-2xl border border-brand-light-gray">
+            <h1 class="text-4xl font-bold text-center mb-8">Login to HEiMDALL</h1>
+        <form id="loginForm" class="space-y-6">
+            <div id="loginError" class="hidden text-red-400 text-sm mb-2" role="alert" aria-live="polite"></div>
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-300">Username</label>
+                <input type="text" id="username" name="username" required
+                    class="mt-1 block w-full px-3 py-2 bg-brand-gray border border-brand-light-gray rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-red">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
+                <input type="password" id="password" name="password" required
+                    class="mt-1 block w-full px-3 py-2 bg-brand-gray border border-brand-light-gray rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-red">
+            </div>
+            <div>
+                <button type="submit"
+                    class="w-full py-3 px-4 bg-brand-red text-white font-semibold rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-brand-black">
+                    Sign In
+                </button>
+            </div>
+        </form>
+        <div class="mt-6 text-center">
+            <p class="text-gray-400">Don't have an account?</p>
+            <a href="/signup.html" class="text-brand-red hover:text-red-700 font-semibold">Sign up now</a>
+        </div>
+    </div>
+    </div>
+    <script src="js/login.js"></script>
+</body>
+</html>

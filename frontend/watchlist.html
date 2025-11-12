@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heimdall | My List</title>
+    <link rel="icon" type="image/x-icon" href="assets/HEiMDALL_logo.ico">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-black': '#0b0c0f',
+                        'brand-gray': '#1a1d23',
+                        'brand-light-gray': '#2c313a',
+                        'brand-red': '#e50914',
+                    },
+                    spacing: {
+                        'poster-w': '200px',
+                        'poster-h': '300px',
+                    }
+                },
+            },
+        }
+    </script>
+    <!-- Link to CSS file -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="bg-brand-black text-white font-inter">
+
+    <!-- Header / Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-brand-black bg-opacity-80 backdrop-blur-md shadow-lg">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
+            <!-- Logo and Main Nav -->
+            <div class="flex items-center space-x-8">
+                <!-- Logo -->
+                <a href="/index.html" class="text-3xl font-bold text-brand-red tracking-wider">
+                    HEiMDALL
+                </a>
+                
+                <!-- Desktop Nav Links -->
+                <ul class="hidden md:flex items-center space-x-6">
+                    <li><a href="/index.html" class="text-gray-400 hover:text-gray-300 transition duration-200">Home</a></li>
+                    <li><a href="/search.html" class="text-gray-400 hover:text-gray-300 transition duration-200">Discover</a></li>
+                    <li><a href="/watchlist.html" class="text-white font-semibold hover:text-gray-300 transition duration-200">My List</a></li>
+                </ul>
+            </div>
+
+            <!-- Right Side: Search, Profile, etc. -->
+            <div class="flex items-center space-x-4 sm:space-x-6">
+                <!-- Search Icon -->
+                <button id="search-open-button" class="text-gray-300 hover:text-white transition duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+                
+                <!-- Profile Icon -->
+                <a href="/profiles.html" class="relative">
+                    <button class="flex items-center space-x-2 text-gray-300 hover:text-white transition duration-200">
+                        <img id="nav-profile-img" class="h-8 w-8 rounded-md object-cover" src="https://placehold.co/40x40/e50914/white?text=V" alt="User Profile">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </a>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-white transition duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Mobile Menu (hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-brand-black bg-opacity-90 px-4 pt-2 pb-4 space-y-2">
+            <a href="/index.html" class="block text-gray-400 hover:text-gray-300 transition duration-200">Home</a>
+            <a href="/search.html" class="block text-gray-400 hover:text-gray-300 transition duration-200">Discover</a>
+            <a href="/watchlist.html" class="block text-white font-semibold hover:text-gray-300 transition duration-200">My List</a>
+        </div>
+    </header>
+
+    <!-- Search Overlay -->
+    <div id="search-overlay" class="hidden fixed inset-0 z-50 bg-brand-black/90 backdrop-blur-sm p-4 pt-20 sm:p-8 sm:pt-24">
+        <button id="search-close-button" class="absolute top-6 right-6 text-gray-400 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <div class="container mx-auto max-w-4xl">
+            <input type="text" id="search-input" placeholder="Search for movies and TV shows..."
+                   class="w-full p-4 bg-brand-gray border-2 border-brand-light-gray rounded-lg text-white text-xl placeholder-gray-500 focus:outline-none focus:border-brand-red">
+            <div class="text-center my-4">
+                <a href="/search.html" class="text-lg text-brand-red hover:text-white transition-colors">
+                    Advanced Discover Page &rarr;
+                </a>
+            </div>
+            <div id="search-results-list" class="flex flex-col space-y-2 max-h-[60vh] overflow-y-auto search-results-scrollbar pr-2 mt-4">
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="pt-20">
+        
+        <!-- Page Header -->
+        <section class="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
+            <h1 class="text-4xl sm:text-5xl font-black">My List</h1>
+            <p class="text-gray-400 mt-2">Movies and TV shows you've saved</p>
+        </section>
+
+        <!-- Watchlist Grid -->
+        <section class="container mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+            <div id="watchlist-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <!-- Items will be loaded here by JavaScript -->
+            </div>
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-24">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 mx-auto text-gray-600 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                <h2 class="text-2xl font-bold text-gray-400 mb-2">Your list is empty</h2>
+                <p class="text-gray-500 mb-6">Start adding movies and TV shows to your watchlist</p>
+                <a href="/index.html" class="inline-block px-6 py-3 bg-brand-red text-white font-semibold rounded-lg hover:bg-opacity-90 transition duration-200">
+                    Browse Content
+                </a>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="mt-24 bg-brand-gray text-gray-400 py-12 relative overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="assets/footer_1.png" alt="Footer Background" class="w-full h-full object-cover opacity-60">
+        </div>
+        <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-sm text-white">
+                &copy; 2025 JalJira. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Link to JS files -->
+    <script src="js/app.js" defer></script>
+    <script src="js/watchlist.js" defer></script>
+</body>
+</html>

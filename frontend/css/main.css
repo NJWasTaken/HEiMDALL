@@ -1,0 +1,243 @@
+/* For custom scrollbar in carousels */
+.carousel-scrollbar::-webkit-scrollbar {
+    height: 8px;
+}
+.carousel-scrollbar::-webkit-scrollbar-track {
+    background: #1a1d23;
+    border-radius: 4px;
+}
+.carousel-scrollbar::-webkit-scrollbar-thumb {
+    background: #e50914;
+    border-radius: 4px;
+}
+.carousel-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #f40612;
+}
+/* Gradient for Hero */
+.hero-gradient {
+    background: linear-gradient(to top, #0b0c0f 20%, rgba(11, 12, 15, 0) 100%);
+}
+.hero-gradient-left {
+    background: linear-gradient(to right, #0b0c0f 10%, rgba(11, 12, 15, 0.5) 70%, rgba(11, 12, 15, 0) 100%);
+}
+
+.search-results-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+.search-results-scrollbar::-webkit-scrollbar-track {
+    background: #1a1d23; /* Dark track */
+    border-radius: 4px;
+}
+.search-results-scrollbar::-webkit-scrollbar-thumb {
+    background: #e50914; /* Red thumb */
+    border-radius: 4px;
+}
+.search-results-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #f40612; /* Brighter red on hover */
+}
+
+.search-dropdown-item img {
+    width: 48px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0; 
+}
+
+.filter-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: #1a1d23; /* brand-gray */
+    border: 2px solid #2c313a; /* brand-light-gray */
+    border-radius: 0.5rem; /* rounded-lg */
+    color: white;
+    appearance: none; /* Removes default OS styling */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem; /* Make space for the icon */
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #e50914; /* brand-red */
+    box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.5);
+}
+
+.genre-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: rgba(44, 49, 58, 0.7); /* brand-light-gray with opacity */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 9999px; /* rounded-full */
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* medium */
+    backdrop-filter: blur(5px);
+}
+
+/* Episode List Styling - Netflix Style */
+.episode-item {
+    display: grid;
+    grid-template-columns: 200px 1fr auto;
+    gap: 1.5rem;
+    align-items: center;
+    background-color: #1a1d23;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.2s, transform 0.15s, border-color 0.2s;
+    border: 1px solid transparent;
+}
+
+.episode-item:hover {
+    background-color: #2c313a;
+    border-color: #3d4351;
+    transform: translateX(4px);
+}
+
+.episode-item-thumbnail {
+    width: 200px;
+    height: 113px;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.episode-item-info {
+    padding: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.episode-item-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.4;
+    margin: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.episode-item-overview {
+    font-size: 0.9375rem;
+    color: #b3b3b3;
+    margin: 0;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    word-wrap: break-word;
+}
+
+.episode-item-play {
+    align-self: center;
+    padding: 0.5rem;
+    background-color: transparent;
+    border: 2px solid #e5e7eb;
+    border-radius: 50%;
+    color: white;
+    transition: transform 0.2s, background-color 0.2s, border-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+}
+
+.episode-item-play svg {
+    width: 20px;
+    height: 20px;
+}
+
+.episode-item-play:hover {
+    transform: scale(1.15);
+    background-color: #e50914;
+    border-color: #e50914;
+}
+
+/* Tablet breakpoint */
+@media (max-width: 768px) {
+    .episode-item {
+        grid-template-columns: 150px 1fr auto;
+        gap: 1rem;
+        padding: 0.875rem;
+    }
+    
+    .episode-item-thumbnail {
+        width: 150px;
+        height: 84px;
+    }
+    
+    .episode-item-title {
+        font-size: 1rem;
+    }
+    
+    .episode-item-overview {
+        font-size: 0.875rem;
+    }
+    
+    .episode-item-play {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .episode-item-play svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 640px) {
+    .episode-item {
+        grid-template-columns: 110px 1fr auto;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+    
+    .episode-item-thumbnail {
+        width: 110px;
+        height: 62px;
+    }
+    
+    .episode-item-title {
+        font-size: 0.9375rem;
+    }
+    
+    .episode-item-overview {
+        font-size: 0.8125rem;
+        -webkit-line-clamp: 1;
+    }
+    
+    .episode-item-play {
+        width: 36px;
+        height: 36px;
+        padding: 0.4rem;
+    }
+    
+    .episode-item-play svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255,255,255,0.12);
+    border-top-color: #e50914; /* brand-red */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

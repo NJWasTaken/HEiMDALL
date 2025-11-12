@@ -2,13 +2,18 @@
 
 > An OTT streaming platform free for all, free forverI
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Flask-3.0+-black.svg)](https://flask.palletsprojects.com/)
-[![Node.js](https://img.shields.io/badge/Node.js-16+-339933.svg)](https://nodejs.org/)
-[![npm](https://img.shields.io/badge/npm-8+-CB3837.svg)](https://www.npmjs.com/)
-[![Electron](https://img.shields.io/badge/Electron-27.0.0-brightgreen.svg)](https://www.electronjs.org/)
-[![Version](https://img.shields.io/badge/version-1.0.6-orange.svg)](https://github.com/Prateek-P1/HEiMDALL)
+<div align="center">
+
+![MIT License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.0.6-orange?style=for-the-badge)
+![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0+-000000?style=for-the-badge&logo=flask&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-16+-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![npm](https://img.shields.io/badge/npm-8+-CB3837?style=for-the-badge&logo=npm&logoColor=white)
+![Electron.js](https://img.shields.io/badge/Electron-27.0.0-191970?style=for-the-badge&logo=Electron&logoColor=white)
+
+</div>
+
 
 ## Overview
 

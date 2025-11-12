@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
     const searchInput = document.getElementById('music-search-input');
     const resultsList = document.getElementById('music-results-list');
     const resultsSection = document.getElementById('results-section');
@@ -9,6 +10,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const playerTrackTitle = document.getElementById('player-track-title');
     const playerTrackArtist = document.getElementById('player-track-artist');
     const closePlayerBtn = document.getElementById('close-player');
+    
+    // Queue Elements
+    const queuePanel = document.getElementById('queue-panel');
+    const toggleQueueBtn = document.getElementById('toggle-queue-btn');
+    const closeQueueBtn = document.getElementById('close-queue-btn');
+    const clearQueueBtn = document.getElementById('clear-queue-btn');
+    const queueList = document.getElementById('queue-list');
+    const queueEmpty = document.getElementById('queue-empty');
+    const queueCount = document.getElementById('queue-count');
+    const queueBadge = document.getElementById('queue-badge');
+    const queueNowPlaying = document.getElementById('queue-now-playing');
+    const queueCurrentImage = document.getElementById('queue-current-image');
+    const queueCurrentTitle = document.getElementById('queue-current-title');
+    const queueCurrentArtist = document.getElementById('queue-current-artist');
+    
+    // Lyrics Elements
     const lyricsPanel = document.getElementById('lyrics-panel');
     const toggleLyricsBtn = document.getElementById('toggle-lyrics-btn');
     const closeLyricsBtn = document.getElementById('close-lyrics-btn');
@@ -20,9 +37,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const lyricsError = document.getElementById('lyrics-error');
     const mainContent = document.getElementById('main-content');
 
+    // State
     let currentTrack = null;
+    let musicQueue = [];
+    let currentQueueIndex = -1;
 
-    // Set navbar profile image from localStorage
+    // Load queue from localStorage
+    const loadQueue = () => {
+        try {
+            const saved = localStorage.getItem('heimdall-music-queue');
+            if (saved) {
+                musicQueue = JSON.parse(saved);
+                updateQueueUI();
+            }
+        } catch (e) {
+            console.error('Failed to load queue:', e);
+        }
+    };
+
+    // Save queue to localStorage
+    const saveQueue = () => {
+        try {
+            localStorage.setItem('heimdall-music-queue', JSON.stringify(musicQueue));
+        } catch (e) {
+            console.error('Failed to save queue:', e);
+        }
+    };
+
+    // Set navbar profile image
     const setNavbarProfileImage = () => {
         const img = document.getElementById('nav-profile-img');
         if (!img) return;
@@ -36,9 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 img.src = profile.image;
                 return;
             }
-        } catch (e) {
-            // not JSON – fall through to treat as plain name
-        }
+        } catch (e) {}
 
         const name = raw;
         if (typeof name === 'string' && name.length > 0) {
@@ -49,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setNavbarProfileImage();
 
-    // Format duration from seconds to MM:SS
+    // Format duration
     const formatDuration = (seconds) => {
         if (!seconds) return '';
         const mins = Math.floor(seconds / 60);
@@ -57,23 +97,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // Debounce function to limit API calls
+    // Debounce function
     const debounce = (func, delay) => {
         let timeoutId;
         return (...args) => {
             clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                func.apply(this, args);
-            }, delay);
+            timeoutId = setTimeout(() => func.apply(this, args), delay);
         };
     };
 
-    // IMPROVED: Extract clean artist and title from YouTube video title
+    // Parse track info
     const parseTrackInfo = (youtubeTitle, channelName) => {
         let artist = channelName || 'Unknown Artist';
         let title = youtubeTitle;
 
-        // Clean up the title first - remove common suffixes
         const cleanTitle = (str) => {
             return str
                 .replace(/\(official\s*(video|audio|music\s*video|lyric\s*video)\)/gi, '')
@@ -82,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .replace(/\(lyric(s)?\s*video\)/gi, '')
                 .replace(/\[lyric(s)?\s*video\]/gi, '')
                 .replace(/lyric(s)?\s*video/gi, '')
-                .replace(/\(.*?\d{4}.*?remaster(ed)?\)/gi, '') // Remove (2008 Remastered)
+                .replace(/\(.*?\d{4}.*?remaster(ed)?\)/gi, '')
                 .replace(/\(.*?remaster(ed)?\)/gi, '')
                 .replace(/\[.*?remaster(ed)?\]/gi, '')
                 .replace(/\(.*?version\)/gi, '')
@@ -91,17 +128,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 .replace(/\[.*?remix\]/gi, '')
                 .replace(/\(.*?edit\)/gi, '')
                 .replace(/\[.*?edit\]/gi, '')
-                .replace(/【.*?】/g, '')  // Japanese brackets
-                .replace(/〈.*?〉/g, '')   // Japanese angle brackets
-                .replace(/\(ft\.?.*?\)/gi, '')  // Remove (ft. Artist)
+                .replace(/【.*?】/g, '')
+                .replace(/〈.*?〉/g, '')
+                .replace(/\(ft\.?.*?\)/gi, '')
                 .replace(/\[ft\.?.*?\]/gi, '')
-                .replace(/feat\.?\s+.*/gi, '')  // Remove "feat. Artist"
-                .replace(/\s*-\s*topic$/gi, '')  // Remove "- Topic"
-                .replace(/\s+/g, ' ')     // Normalize whitespace
+                .replace(/feat\.?\s+.*/gi, '')
+                .replace(/\s*-\s*topic$/gi, '')
+                .replace(/\s+/g, ' ')
                 .trim();
         };
 
-        // Try to split by common delimiters
         if (youtubeTitle.includes(' - ')) {
             const parts = youtubeTitle.split(' - ');
             if (parts.length >= 2) {
@@ -119,11 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
             title = cleanTitle(youtubeTitle.substring(0, index));
             artist = cleanTitle(youtubeTitle.substring(index + 4));
         } else {
-            // No delimiter found - just clean the title and use channel as artist
             title = cleanTitle(youtubeTitle);
         }
 
-        // Clean up artist name
         artist = artist
             .replace(/VEVO$/i, '')
             .replace(/official$/i, '')
@@ -131,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/\s+/g, ' ')
             .trim();
 
-        // If artist is still generic or empty, try to use channel name
         if (!artist || artist === 'Unknown Artist' || artist.length === 0) {
             artist = channelName || 'Unknown Artist';
         }
@@ -139,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return { artist, title };
     };
 
-    // --- Function to search for music ---
+    // Search music
     async function searchMusic(query) {
         if (!query || query.trim().length < 2) {
             resultsSection.classList.add('hidden');
@@ -176,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             results.forEach(track => {
                 const trackCard = document.createElement('div');
-                trackCard.className = 'flex items-center p-4 bg-brand-gray rounded-xl hover:bg-brand-light-gray transition-all duration-200 cursor-pointer group transform hover:scale-[1.02]';
+                trackCard.className = 'flex items-center p-4 bg-brand-gray rounded-xl hover:bg-brand-light-gray transition-all duration-200 group';
                 
                 const duration = track.duration ? formatDuration(track.duration) : '';
                 
@@ -191,21 +224,31 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p class="text-sm text-gray-400 truncate">${track.artist}</p>
                         ${duration ? `<p class="text-xs text-gray-500 mt-1">${duration}</p>` : ''}
                     </div>
-                    <div class="flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-500 group-hover:text-brand-red transition-colors duration-200" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
-                        </svg>
+                    <div class="flex items-center space-x-2">
+                        <button class="play-btn p-2 hover:bg-brand-light-gray rounded-lg transition-colors" title="Play now">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-500 group-hover:text-brand-red transition-colors duration-200" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                            </svg>
+                        </button>
+                        <button class="add-queue-btn p-2 hover:bg-brand-light-gray rounded-lg transition-colors" title="Add to queue">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 hover:text-brand-red transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
                     </div>
                 `;
                 
-                trackCard.dataset.source = track.source;
-                trackCard.dataset.id = track.id;
-                trackCard.dataset.title = track.title;
-                trackCard.dataset.artist = track.artist;
-                trackCard.dataset.image = track.image;
-
-                trackCard.addEventListener('click', () => {
+                const playBtn = trackCard.querySelector('.play-btn');
+                const addQueueBtn = trackCard.querySelector('.add-queue-btn');
+                
+                playBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     playTrack(track);
+                });
+                
+                addQueueBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    addToQueue(track);
                 });
 
                 resultsList.appendChild(trackCard);
@@ -225,16 +268,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Function to play a track ---
-    async function playTrack(track) {        
-        // Store current track for lyrics
+    // Play track
+    async function playTrack(track, fromQueue = false) {        
         currentTrack = track;
         
-        // Update player UI immediately
         playerTrackImage.src = track.image || 'https://placehold.co/80x80/1a1d23/666?text=No+Image';
         playerTrackTitle.textContent = track.title;
         playerTrackArtist.textContent = track.artist;
         playerContainer.classList.remove('hidden');
+        
+        // Update queue now playing
+        if (queueNowPlaying) {
+            queueCurrentImage.src = track.image || 'https://placehold.co/80x80/1a1d23/666?text=No+Image';
+            queueCurrentTitle.textContent = track.title;
+            queueCurrentArtist.textContent = track.artist;
+            queueNowPlaying.classList.remove('hidden');
+        }
         
         player.src = '';
         player.innerHTML = '<source src="" type="audio/mpeg">';
@@ -264,9 +313,156 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // IMPROVED: Fetch lyrics with better error handling
+    // Add to queue
+    function addToQueue(track) {
+        // Check if already in queue
+        const exists = musicQueue.some(t => t.id === track.id);
+        if (exists) {
+            showNotification('Already in queue', 'warning');
+            return;
+        }
+
+        musicQueue.push(track);
+        saveQueue();
+        updateQueueUI();
+        showNotification('Added to queue', 'success');
+    }
+
+    // Remove from queue
+    function removeFromQueue(index) {
+        musicQueue.splice(index, 1);
+        saveQueue();
+        updateQueueUI();
+    }
+
+    // Clear queue
+    function clearQueue() {
+        if (musicQueue.length === 0) return;
+        
+        if (confirm('Clear entire queue?')) {
+            musicQueue = [];
+            currentQueueIndex = -1;
+            saveQueue();
+            updateQueueUI();
+            showNotification('Queue cleared', 'info');
+        }
+    }
+
+    // Play next in queue
+    function playNext() {
+        if (musicQueue.length === 0) {
+            console.log('Queue is empty');
+            return;
+        }
+
+        const nextTrack = musicQueue.shift(); // Remove first item
+        saveQueue();
+        updateQueueUI();
+        playTrack(nextTrack, true);
+    }
+
+    // Update queue UI
+    function updateQueueUI() {
+        const count = musicQueue.length;
+        queueCount.textContent = `(${count})`;
+        
+        if (count > 0) {
+            queueBadge.textContent = count;
+            queueBadge.classList.remove('hidden');
+            queueList.classList.remove('hidden');
+            queueEmpty.classList.add('hidden');
+        } else {
+            queueBadge.classList.add('hidden');
+            queueList.classList.add('hidden');
+            queueEmpty.classList.remove('hidden');
+        }
+
+        queueList.innerHTML = '';
+
+        musicQueue.forEach((track, index) => {
+            const queueItem = document.createElement('div');
+            queueItem.className = 'flex items-center p-3 bg-brand-black rounded-lg hover:bg-brand-light-gray transition-all duration-200 cursor-pointer group queue-item-enter';
+            
+            queueItem.innerHTML = `
+                <span class="text-gray-500 w-6 text-sm">${index + 1}</span>
+                <img src="${track.image || 'https://placehold.co/40x40/1a1d23/666?text=No+Image'}" 
+                     alt="${track.title}" 
+                     class="w-10 h-10 rounded object-cover shadow-md mx-3">
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-semibold text-sm truncate">${track.title}</h4>
+                    <p class="text-xs text-gray-400 truncate">${track.artist}</p>
+                </div>
+                <button class="remove-queue-btn opacity-0 group-hover:opacity-100 p-2 hover:bg-brand-gray rounded transition-all" title="Remove">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 hover:text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            `;
+            
+            queueItem.addEventListener('click', (e) => {
+                if (!e.target.closest('.remove-queue-btn')) {
+                    // Play this track and remove all before it
+                    const tracksToRemove = index;
+                    musicQueue.splice(0, tracksToRemove);
+                    playNext();
+                }
+            });
+            
+            const removeBtn = queueItem.querySelector('.remove-queue-btn');
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeFromQueue(index);
+            });
+
+            queueList.appendChild(queueItem);
+        });
+    }
+
+    // Show notification
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        const colors = {
+            success: 'bg-green-600',
+            warning: 'bg-yellow-600',
+            info: 'bg-blue-600',
+            error: 'bg-red-600'
+        };
+        
+        notification.className = `fixed bottom-24 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(20px)';
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
+    }
+
+    // Toggle queue panel
+    function toggleQueuePanel() {
+        const isHidden = queuePanel.classList.contains('hidden');
+        
+        if (isHidden) {
+            closeLyricsPanel(); // Close lyrics if open
+            queuePanel.classList.remove('hidden');
+            if (window.innerWidth >= 768) {
+                mainContent.style.marginRight = '400px';
+            }
+        } else {
+            queuePanel.classList.add('hidden');
+            mainContent.style.marginRight = '0';
+        }
+    }
+
+    // Close queue panel
+    function closeQueuePanel() {
+        queuePanel.classList.add('hidden');
+        mainContent.style.marginRight = '0';
+    }
+
+    // Fetch lyrics
     async function fetchLyrics(artist, title) {
-        // Show loading state
         lyricsLoading.classList.remove('hidden');
         lyricsText.classList.add('hidden');
         lyricsError.classList.add('hidden');
@@ -274,10 +470,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Fetching lyrics for: "${artist}" - "${title}"`);
 
         try {
-            // Use backend proxy to avoid CORS issues
             const response = await fetch(
-                `http://127.0.0.1:8000/api/music/lyrics?artist=${encodeURIComponent(artist)}&title=${encodeURIComponent(title)}`,
-                { timeout: 15000 } // 15 second timeout on fetch
+                `http://127.0.0.1:8000/api/music/lyrics?artist=${encodeURIComponent(artist)}&title=${encodeURIComponent(title)}`
             );
 
             if (response.status === 404) {
@@ -309,7 +503,6 @@ document.addEventListener('DOMContentLoaded', () => {
             lyricsLoading.classList.add('hidden');
             lyricsError.classList.remove('hidden');
             
-            // Update error message based on error type
             const errorMsg = lyricsError.querySelector('p.text-gray-400');
             const errorDetail = lyricsError.querySelector('p.text-gray-500');
             
@@ -326,19 +519,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Display lyrics in the panel
+    // Display lyrics
     function displayLyrics(lyricsString) {
         lyricsLoading.classList.add('hidden');
         lyricsText.classList.remove('hidden');
         lyricsText.innerHTML = '';
 
-        // Split lyrics into lines
         const lines = lyricsString.split('\n');
         
         lines.forEach(line => {
             const lineDiv = document.createElement('div');
             lineDiv.className = 'lyrics-line text-white';
-            lineDiv.textContent = line || '\u00A0'; // Use non-breaking space for empty lines
+            lineDiv.textContent = line || '\u00A0';
             lyricsText.appendChild(lineDiv);
         });
     }
@@ -350,25 +542,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const isHidden = lyricsPanel.classList.contains('hidden');
         
         if (isHidden) {
-            // Show panel
+            closeQueuePanel(); // Close queue if open
             lyricsPanel.classList.remove('hidden');
             
-            // Update track info in lyrics panel
             lyricsTrackImage.src = currentTrack.image || 'https://placehold.co/80x80/1a1d23/666?text=No+Image';
             lyricsTrackTitle.textContent = currentTrack.title;
             lyricsTrackArtist.textContent = currentTrack.artist;
             
-            // Parse and fetch lyrics with better parsing
             const { artist, title } = parseTrackInfo(currentTrack.title, currentTrack.artist);
             console.log(`Parsed: "${artist}" - "${title}"`);
             fetchLyrics(artist, title);
             
-            // On desktop, shrink main content
             if (window.innerWidth >= 768) {
                 mainContent.style.marginRight = '400px';
             }
         } else {
-            // Hide panel
             lyricsPanel.classList.add('hidden');
             mainContent.style.marginRight = '0';
         }
@@ -380,40 +568,52 @@ document.addEventListener('DOMContentLoaded', () => {
         mainContent.style.marginRight = '0';
     }
 
-    // Event Listeners for Lyrics
+    // Event Listeners
+    toggleQueueBtn.addEventListener('click', toggleQueuePanel);
+    closeQueueBtn.addEventListener('click', closeQueuePanel);
+    clearQueueBtn.addEventListener('click', clearQueue);
+    
     toggleLyricsBtn.addEventListener('click', toggleLyricsPanel);
     closeLyricsBtn.addEventListener('click', closeLyricsPanel);
 
-    // Close player button
     closePlayerBtn.addEventListener('click', () => {
         player.pause();
         player.src = '';
         playerContainer.classList.add('hidden');
-        closeLyricsPanel(); // Also close lyrics when player closes
+        closeLyricsPanel();
+        closeQueuePanel();
         currentTrack = null;
+    });
+
+    // Auto-play next track when current ends
+    player.addEventListener('ended', () => {
+        console.log('Track ended, playing next in queue');
+        playNext();
     });
 
     // Handle window resize
     window.addEventListener('resize', () => {
-        if (window.innerWidth < 768 || lyricsPanel.classList.contains('hidden')) {
+        const anyPanelOpen = !queuePanel.classList.contains('hidden') || !lyricsPanel.classList.contains('hidden');
+        if (window.innerWidth < 768 || !anyPanelOpen) {
             mainContent.style.marginRight = '0';
-        } else if (!lyricsPanel.classList.contains('hidden')) {
+        } else if (anyPanelOpen) {
             mainContent.style.marginRight = '400px';
         }
     });
 
-    // Create debounced search function
+    // Search functionality
     const debouncedSearch = debounce(searchMusic, 500);
 
-    // Search when user types (debounced)
     searchInput.addEventListener('input', (event) => {
         debouncedSearch(event.target.value);
     });
 
-    // Also search when user presses 'Enter'
     searchInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             searchMusic(searchInput.value);
         }
     });
+
+    // Initialize
+    loadQueue();
 });

@@ -1,4 +1,4 @@
-# HEiMDALL
+<img width="1919" height="1079" alt="Screenshot 2025-11-12 205440" src="https://github.com/user-attachments/assets/a8825f89-bee0-4364-b671-916138539f4d" /># HEiMDALL
 
 > An OTT streaming platform free for all, free forver
 
@@ -18,6 +18,14 @@
 ## Overview
 
 HEiMDALL is a comprehensive mock OTT streaming platform that replicates the core functionality of modern streaming services. Built as a desktop application, it seamlessly integrates a Python Flask backend with an Electron-based frontend to deliver a native application experience.
+
+<img width="1919" height="1079" alt="Screenshot 2025-11-12 205404" src="https://github.com/user-attachments/assets/715d0b74-dfe4-4fa1-b1cb-edf5e10d944b" />
+
+<img width="1919" height="1079" alt="Screenshot 2025-11-12 205440" src="https://github.com/user-attachments/assets/4a215890-e473-4939-a81a-20b4da10ac36" />
+
+<img width="1919" height="1079" alt="Screenshot 2025-11-12 204957" src="https://github.com/user-attachments/assets/5d9e9dc0-8e95-46ef-b9f2-b8773e504bd7" />
+
+<img width="1919" height="1079" alt="Screenshot 2025-11-12 210041" src="https://github.com/user-attachments/assets/dde91b31-77d0-4bab-b1f8-a1441200b570" />
 
 ## System Requirements
 

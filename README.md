@@ -28,6 +28,28 @@ HEiMDALL is a comprehensive mock OTT streaming platform that replicates the core
 - **Search Functionality** - Advanced search capabilities to find content quickly
 - **Desktop Application** - Native Windows desktop app with installer support
 
+## System Requirements
+
+### Minimum Requirements
+- **Operating System**: Windows 10 (64-bit) or later
+- **Processor**: Intel Core i3 or AMD equivalent
+- **RAM**: 4 GB
+- **Storage**: 300 MB free disk space
+- **Display**: 1280 x 720 resolution
+- **Internet**: Stable internet connection for content browsing
+
+### Recommended Requirements
+- **Operating System**: Windows 10/11 (64-bit)
+- **Processor**: Intel Core i5 or AMD equivalent
+- **RAM**: 8 GB or more
+- **Storage**: 500 MB free disk space
+- **Display**: 1920 x 1080 resolution or higher
+- **Internet**: Broadband connection (5+ Mbps)
+
+### Download Sizes
+- **Installer Size**: ~102 MB 
+- **Installed Size**: ~234 MB
+
 ## Architecture
 
 The application follows a modern client-server architecture:

@@ -41,16 +41,6 @@ HEiMDALL is a comprehensive mock OTT streaming platform that replicates the core
 - **Installer Size**: ~102 MB 
 - **Installed Size**: ~234 MB
 
-### Key Features
-
-- **User Authentication** - Secure sign-up and login system with encrypted password storage
-- **Profile Management** - Multiple user profiles with personalized settings and preferences
-- **Content Discovery** - Browse extensive movie and TV show catalogs powered by TMDB API
-- **Personal Watchlist** - Save and manage your favorite content across profiles
-- **Search Functionality** - Advanced search capabilities to find content quickly
-- **Desktop Application** - Native Windows desktop app with installer support
-
-
 ## Architecture
 
 The application follows a modern client-server architecture:

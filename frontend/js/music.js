@@ -42,11 +42,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const lyricsError = document.getElementById('lyrics-error');
     const mainContent = document.getElementById('main-content');
 
+    // Playlists Elements
+    const playlistsPanel = document.getElementById('playlists-panel');
+    const togglePlaylistsBtn = document.getElementById('toggle-playlists-btn');
+    const closePlaylistsBtn = document.getElementById('close-playlists-btn');
+    const createPlaylistBtn = document.getElementById('create-playlist-btn');
+    const createPlaylistEmptyBtn = document.getElementById('create-playlist-empty-btn');
+    const playlistsList = document.getElementById('playlists-list');
+    const playlistsEmpty = document.getElementById('playlists-empty');
+    const playlistsCount = document.getElementById('playlists-count');
+    const playlistsBadge = document.getElementById('playlists-badge');
+    const createPlaylistModal = document.getElementById('create-playlist-modal');
+    const playlistNameInput = document.getElementById('playlist-name-input');
+    const modalCancelCreatePlaylist = document.getElementById('modal-cancel-create-playlist');
+    const modalConfirmCreatePlaylist = document.getElementById('modal-confirm-create-playlist');
+    const addToPlaylistModal = document.getElementById('add-to-playlist-modal');
+    const playlistSelectionList = document.getElementById('playlist-selection-list');
+    const modalCancelAddToPlaylist = document.getElementById('modal-cancel-add-to-playlist');
+    const deletePlaylistModal = document.getElementById('delete-playlist-modal');
+    const modalCancelDeletePlaylist = document.getElementById('modal-cancel-delete-playlist');
+    const modalConfirmDeletePlaylist = document.getElementById('modal-confirm-delete-playlist');
+
     // State
     let currentTrack = null;
     let musicQueue = [];
-    let playHistory = []; 
-    let selectedQueueIndex = -1; 
+    let playHistory = [];
+    let selectedQueueIndex = -1;
+    let playlists = [];
+    let selectedPlaylistId = null;
+    let trackToAdd = null;
+    let playlistToDelete = null; 
     const loadQueue = () => {
         try {
             const saved = localStorage.getItem('heimdall-music-queue');
@@ -65,6 +90,120 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('heimdall-music-queue', JSON.stringify(musicQueue));
         } catch (e) {
             console.error('Failed to save queue:', e);
+        }
+    };
+
+    // Load playlists from localStorage
+    const loadPlaylists = () => {
+        try {
+            const saved = localStorage.getItem('heimdall-music-playlists');
+            if (saved) {
+                playlists = JSON.parse(saved);
+                updatePlaylistsUI();
+            }
+        } catch (e) {
+            console.error('Failed to load playlists:', e);
+        }
+    };
+
+    // Save playlists to localStorage
+    const savePlaylists = () => {
+        try {
+            localStorage.setItem('heimdall-music-playlists', JSON.stringify(playlists));
+        } catch (e) {
+            console.error('Failed to save playlists:', e);
+        }
+    };
+
+    // Create new playlist
+    const createPlaylist = (name) => {
+        if (!name || name.trim().length === 0) {
+            showNotification('Playlist name cannot be empty', 'warning');
+            return null;
+        }
+
+        const playlist = {
+            id: Date.now().toString(),
+            name: name.trim(),
+            tracks: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+
+        playlists.push(playlist);
+        savePlaylists();
+        updatePlaylistsUI();
+        showNotification(`Playlist "${name}" created`, 'success');
+        return playlist;
+    };
+
+    // Delete playlist
+    const deletePlaylist = (playlistId) => {
+        const index = playlists.findIndex(p => p.id === playlistId);
+        if (index === -1) return;
+
+        const playlistName = playlists[index].name;
+        playlists.splice(index, 1);
+        savePlaylists();
+        updatePlaylistsUI();
+        showNotification(`Playlist "${playlistName}" deleted`, 'info');
+    };
+
+    // Add track to playlist
+    const addTrackToPlaylist = (playlistId, track) => {
+        const playlist = playlists.find(p => p.id === playlistId);
+        if (!playlist) {
+            showNotification('Playlist not found', 'error');
+            return;
+        }
+
+        // Check if track already exists in playlist
+        const exists = playlist.tracks.some(t => t.id === track.id);
+        if (exists) {
+            showNotification(`Already in "${playlist.name}"`, 'warning');
+            return;
+        }
+
+        playlist.tracks.push(track);
+        playlist.updatedAt = new Date().toISOString();
+        savePlaylists();
+        updatePlaylistsUI();
+        showNotification(`Added to "${playlist.name}"`, 'success');
+    };
+
+    // Remove track from playlist
+    const removeTrackFromPlaylist = (playlistId, trackIndex) => {
+        const playlist = playlists.find(p => p.id === playlistId);
+        if (!playlist) return;
+
+        playlist.tracks.splice(trackIndex, 1);
+        playlist.updatedAt = new Date().toISOString();
+        savePlaylists();
+        updatePlaylistsUI();
+    };
+
+    // Play playlist (load all tracks into queue)
+    const playPlaylist = (playlistId) => {
+        const playlist = playlists.find(p => p.id === playlistId);
+        if (!playlist || playlist.tracks.length === 0) {
+            showNotification('Playlist is empty', 'warning');
+            return;
+        }
+
+        // Add all tracks to queue
+        playlist.tracks.forEach(track => {
+            if (!musicQueue.some(t => t.id === track.id)) {
+                musicQueue.push(track);
+            }
+        });
+
+        saveQueue();
+        updateQueueUI();
+        showNotification(`Loaded "${playlist.name}" to queue`, 'success');
+
+        // If nothing is playing, start playing
+        if (!currentTrack) {
+            playNext();
         }
     };
 
@@ -239,20 +378,31 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                             </svg>
                         </button>
+                        <button class="add-to-playlist-btn p-2 hover:bg-brand-light-gray rounded-lg transition-colors" title="Add to playlist">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 hover:text-brand-red transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                        </button>
                     </div>
                 `;
                 
                 const playBtn = trackCard.querySelector('.play-btn');
                 const addQueueBtn = trackCard.querySelector('.add-queue-btn');
-                
+                const addToPlaylistBtn = trackCard.querySelector('.add-to-playlist-btn');
+
                 playBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    playTrack(track, false); 
+                    playTrack(track, false);
                 });
-                
+
                 addQueueBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     addToQueue(track);
+                });
+
+                addToPlaylistBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openAddToPlaylistModal(track);
                 });
 
                 resultsList.appendChild(trackCard);
@@ -589,9 +739,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Toggle queue panel (No changes)
     function toggleQueuePanel() {
         const isHidden = queuePanel.classList.contains('hidden');
-        
+
         if (isHidden) {
             closeLyricsPanel(); // Close lyrics if open
+            closePlaylistsPanel(); // Close playlists if open
             queuePanel.classList.remove('hidden');
             if (window.innerWidth >= 768) {
                 mainContent.style.marginRight = '400px';
@@ -690,19 +841,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const isHidden = lyricsPanel.classList.contains('hidden');
-        
+
         if (isHidden) {
             closeQueuePanel(); // Close queue if open
+            closePlaylistsPanel(); // Close playlists if open
             lyricsPanel.classList.remove('hidden');
-            
+
             lyricsTrackImage.src = currentTrack.image || 'https://placehold.co/80x80/1a1d23/666?text=No+Image';
             lyricsTrackTitle.textContent = currentTrack.title;
             lyricsTrackArtist.textContent = currentTrack.artist;
-            
+
             const { artist, title } = parseTrackInfo(currentTrack.title, currentTrack.artist);
             console.log(`Parsed: "${artist}" - "${title}"`);
             fetchLyrics(artist, title);
-            
+
             if (window.innerWidth >= 768) {
                 mainContent.style.marginRight = '400px';
             }
@@ -716,6 +868,197 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeLyricsPanel() {
         lyricsPanel.classList.add('hidden');
         mainContent.style.marginRight = '0';
+    }
+
+    // Update playlists UI
+    function updatePlaylistsUI() {
+        const count = playlists.length;
+        playlistsCount.textContent = `(${count})`;
+
+        if (count > 0) {
+            playlistsBadge.textContent = count;
+            playlistsBadge.classList.remove('hidden');
+            playlistsList.classList.remove('hidden');
+            playlistsEmpty.classList.add('hidden');
+        } else {
+            playlistsBadge.classList.add('hidden');
+            playlistsList.classList.add('hidden');
+            playlistsEmpty.classList.remove('hidden');
+        }
+
+        playlistsList.innerHTML = '';
+
+        playlists.forEach((playlist) => {
+            const playlistCard = document.createElement('div');
+            playlistCard.className = 'bg-brand-black rounded-lg overflow-hidden transition-all duration-200 hover:bg-brand-light-gray';
+            playlistCard.dataset.playlistId = playlist.id;
+
+            const trackCount = playlist.tracks.length;
+            const isExpanded = selectedPlaylistId === playlist.id;
+
+            playlistCard.innerHTML = `
+                <div class="p-4 cursor-pointer playlist-header">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-lg truncate">${playlist.name}</h3>
+                            <p class="text-sm text-gray-400">${trackCount} track${trackCount !== 1 ? 's' : ''}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${trackCount > 0 ? `
+                            <button class="play-playlist-btn p-2 hover:bg-brand-gray rounded-full transition-all" title="Play all">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 hover:text-brand-red" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                                </svg>
+                            </button>
+                            ` : ''}
+                            <button class="delete-playlist-btn p-2 hover:bg-brand-gray rounded-full transition-all" title="Delete playlist">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 hover:text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                ${isExpanded && trackCount > 0 ? `
+                <div class="px-4 pb-4 space-y-2 playlist-tracks">
+                    ${playlist.tracks.map((track, index) => `
+                        <div class="flex items-center space-x-3 p-2 bg-brand-gray rounded-lg hover:bg-brand-light-gray transition-all group">
+                            <span class="text-gray-500 w-6 text-sm">${index + 1}</span>
+                            <img src="${track.image || 'https://placehold.co/40x40/1a1d23/666?text=No+Image'}"
+                                 alt="${track.title}"
+                                 class="w-10 h-10 rounded object-cover shadow-md">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-semibold text-sm truncate">${track.title}</h4>
+                                <p class="text-xs text-gray-400 truncate">${track.artist}</p>
+                            </div>
+                            <button class="add-to-queue-btn p-2 hover:bg-brand-black rounded-full transition-all opacity-0 group-hover:opacity-100" data-track-index="${index}" title="Add to queue">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 hover:text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </button>
+                            <button class="remove-from-playlist-btn p-2 hover:bg-brand-black rounded-full transition-all opacity-0 group-hover:opacity-100" data-track-index="${index}" title="Remove">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 hover:text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+            `;
+
+            // Event listeners for playlist card
+            const header = playlistCard.querySelector('.playlist-header');
+            header.addEventListener('click', (e) => {
+                if (e.target.closest('button')) return;
+
+                if (selectedPlaylistId === playlist.id) {
+                    selectedPlaylistId = null;
+                } else {
+                    selectedPlaylistId = playlist.id;
+                }
+                updatePlaylistsUI();
+            });
+
+            // Play playlist button
+            const playBtn = playlistCard.querySelector('.play-playlist-btn');
+            if (playBtn) {
+                playBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    playPlaylist(playlist.id);
+                });
+            }
+
+            // Delete playlist button
+            const deleteBtn = playlistCard.querySelector('.delete-playlist-btn');
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                playlistToDelete = playlist.id;
+                deletePlaylistModal.classList.remove('hidden');
+            });
+
+            // Add to queue buttons for each track
+            const addToQueueBtns = playlistCard.querySelectorAll('.add-to-queue-btn');
+            addToQueueBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const trackIndex = parseInt(btn.dataset.trackIndex, 10);
+                    addToQueue(playlist.tracks[trackIndex]);
+                });
+            });
+
+            // Remove from playlist buttons
+            const removeFromPlaylistBtns = playlistCard.querySelectorAll('.remove-from-playlist-btn');
+            removeFromPlaylistBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const trackIndex = parseInt(btn.dataset.trackIndex, 10);
+                    removeTrackFromPlaylist(playlist.id, trackIndex);
+                });
+            });
+
+            playlistsList.appendChild(playlistCard);
+        });
+    }
+
+    // Toggle playlists panel
+    function togglePlaylistsPanel() {
+        const isHidden = playlistsPanel.classList.contains('hidden');
+
+        if (isHidden) {
+            closeQueuePanel();
+            closeLyricsPanel();
+            playlistsPanel.classList.remove('hidden');
+            if (window.innerWidth >= 768) {
+                mainContent.style.marginRight = '400px';
+            }
+        } else {
+            playlistsPanel.classList.add('hidden');
+            mainContent.style.marginRight = '0';
+        }
+    }
+
+    // Close playlists panel
+    function closePlaylistsPanel() {
+        playlistsPanel.classList.add('hidden');
+        mainContent.style.marginRight = '0';
+    }
+
+    // Open add to playlist modal
+    function openAddToPlaylistModal(track) {
+        trackToAdd = track;
+
+        if (playlists.length === 0) {
+            playlistSelectionList.innerHTML = '<p class="text-gray-400 text-center py-4">No playlists available. Create one first!</p>';
+        } else {
+            playlistSelectionList.innerHTML = '';
+            playlists.forEach(playlist => {
+                const playlistBtn = document.createElement('button');
+                playlistBtn.className = 'w-full text-left p-3 bg-brand-black rounded-lg hover:bg-brand-light-gray transition-colors duration-200';
+                playlistBtn.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-semibold">${playlist.name}</h4>
+                            <p class="text-sm text-gray-400">${playlist.tracks.length} track${playlist.tracks.length !== 1 ? 's' : ''}</p>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </div>
+                `;
+                playlistBtn.addEventListener('click', () => {
+                    addTrackToPlaylist(playlist.id, trackToAdd);
+                    addToPlaylistModal.classList.add('hidden');
+                    trackToAdd = null;
+                });
+                playlistSelectionList.appendChild(playlistBtn);
+            });
+        }
+
+        addToPlaylistModal.classList.remove('hidden');
     }
 
     // Event Listeners
@@ -736,9 +1079,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Run the clear logic on "Confirm"
     modalConfirmClear.addEventListener('click', clearQueue);
-    
+
     toggleLyricsBtn.addEventListener('click', toggleLyricsPanel);
     closeLyricsBtn.addEventListener('click', closeLyricsPanel);
+
+    // Playlists event listeners
+    togglePlaylistsBtn.addEventListener('click', togglePlaylistsPanel);
+    closePlaylistsBtn.addEventListener('click', closePlaylistsPanel);
+
+    createPlaylistBtn.addEventListener('click', () => {
+        playlistNameInput.value = '';
+        createPlaylistModal.classList.remove('hidden');
+        playlistNameInput.focus();
+    });
+
+    createPlaylistEmptyBtn.addEventListener('click', () => {
+        playlistNameInput.value = '';
+        createPlaylistModal.classList.remove('hidden');
+        playlistNameInput.focus();
+    });
+
+    modalCancelCreatePlaylist.addEventListener('click', () => {
+        createPlaylistModal.classList.add('hidden');
+    });
+
+    modalConfirmCreatePlaylist.addEventListener('click', () => {
+        const name = playlistNameInput.value.trim();
+        if (name) {
+            createPlaylist(name);
+            createPlaylistModal.classList.add('hidden');
+        }
+    });
+
+    playlistNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const name = playlistNameInput.value.trim();
+            if (name) {
+                createPlaylist(name);
+                createPlaylistModal.classList.add('hidden');
+            }
+        }
+    });
+
+    modalCancelAddToPlaylist.addEventListener('click', () => {
+        addToPlaylistModal.classList.add('hidden');
+        trackToAdd = null;
+    });
+
+    modalCancelDeletePlaylist.addEventListener('click', () => {
+        deletePlaylistModal.classList.add('hidden');
+        playlistToDelete = null;
+    });
+
+    modalConfirmDeletePlaylist.addEventListener('click', () => {
+        if (playlistToDelete) {
+            deletePlaylist(playlistToDelete);
+            deletePlaylistModal.classList.add('hidden');
+            playlistToDelete = null;
+        }
+    });
 
     prevBtn.addEventListener('click', playPrevious);
     nextBtn.addEventListener('click', () => playNext(true));
@@ -749,6 +1148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerContainer.classList.add('hidden');
         closeLyricsPanel();
         closeQueuePanel();
+        closePlaylistsPanel();
         currentTrack = null;
         playHistory = []; // Clear history
     });
@@ -760,7 +1160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle window resize (No changes)
     window.addEventListener('resize', () => {
-        const anyPanelOpen = !queuePanel.classList.contains('hidden') || !lyricsPanel.classList.contains('hidden');
+        const anyPanelOpen = !queuePanel.classList.contains('hidden') || !lyricsPanel.classList.contains('hidden') || !playlistsPanel.classList.contains('hidden');
         if (window.innerWidth < 768 || !anyPanelOpen) {
             mainContent.style.marginRight = '0';
         } else if (anyPanelOpen) {
@@ -783,4 +1183,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize
     loadQueue();
+    loadPlaylists();
 });

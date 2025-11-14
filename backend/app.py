@@ -30,6 +30,17 @@ app.secret_key = None
 TMDB_API_KEY = os.getenv('TMDB_API_KEY')
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
+# Add Cache-Control headers to prevent browser caching of API responses
+@app.after_request
+def add_cache_control_headers(response):
+    """Prevent browser caching of API responses to avoid stale data"""
+    # Only apply to API routes, not static files
+    if request.path.startswith('/api/'):
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
+
 # Initialize the User model
 from models.user import User
 user_model = User()
